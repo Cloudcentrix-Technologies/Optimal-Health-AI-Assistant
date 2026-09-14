@@ -3,13 +3,7 @@
 # Optimal Health M&B AI Staff Knowledge Assistant
 # ============================================================
 
-# ------------------------------------------------------------
-# Get the AWS account ID where Terraform is deploying.
-# We use this to restrict IAM permissions to this account.
-# ------------------------------------------------------------
-
 data "aws_caller_identity" "current" {}
-
 
 # ============================================================
 # BEDROCK KNOWLEDGE BASE
@@ -17,12 +11,6 @@ data "aws_caller_identity" "current" {}
 
 resource "aws_iam_role" "bedrock_knowledge_base" {
   name = "${var.project_name}-bedrock-kb-role-${var.environment}"
-
-  # ----------------------------------------------------------
-  # Allow Amazon Bedrock to assume this role.
-  # The conditions ensure that only Bedrock Knowledge Bases
-  # from this AWS account can assume the role.
-  # ----------------------------------------------------------
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -58,15 +46,8 @@ resource "aws_iam_role" "bedrock_knowledge_base" {
   }
 }
 
-
-# ------------------------------------------------------------
-# Allow the Bedrock Knowledge Base to list objects only within
-# the approved/ document prefix.
-# ------------------------------------------------------------
-
 resource "aws_iam_role_policy" "bedrock_knowledge_base_s3" {
   name = "${var.project_name}-bedrock-kb-s3-${var.environment}"
-
   role = aws_iam_role.bedrock_knowledge_base.id
 
   policy = jsonencode({
@@ -77,10 +58,7 @@ resource "aws_iam_role_policy" "bedrock_knowledge_base_s3" {
         Sid    = "ListApprovedKnowledgeDocuments"
         Effect = "Allow"
 
-        Action = [
-          "s3:ListBucket"
-        ]
-
+        Action   = ["s3:ListBucket"]
         Resource = aws_s3_bucket.knowledge_documents.arn
 
         Condition = {
@@ -96,20 +74,11 @@ resource "aws_iam_role_policy" "bedrock_knowledge_base_s3" {
           }
         }
       },
-
-      # --------------------------------------------------------
-      # Allow the Knowledge Base to read approved documents.
-      # It cannot read documents from incoming/ or rejected/.
-      # --------------------------------------------------------
-
       {
         Sid    = "ReadApprovedKnowledgeDocuments"
         Effect = "Allow"
 
-        Action = [
-          "s3:GetObject"
-        ]
-
+        Action   = ["s3:GetObject"]
         Resource = "${aws_s3_bucket.knowledge_documents.arn}/approved/*"
 
         Condition = {
@@ -122,17 +91,12 @@ resource "aws_iam_role_policy" "bedrock_knowledge_base_s3" {
   })
 }
 
-
 # ============================================================
 # CHAT ORCHESTRATOR LAMBDA
 # ============================================================
 
 resource "aws_iam_role" "chat_orchestrator" {
   name = "${var.project_name}-chat-orchestrator-role-${var.environment}"
-
-  # ----------------------------------------------------------
-  # Allow AWS Lambda to assume this execution role.
-  # ----------------------------------------------------------
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -158,103 +122,46 @@ resource "aws_iam_role" "chat_orchestrator" {
   }
 }
 
-
-# ------------------------------------------------------------
-# Allow the Chat Orchestrator Lambda to write logs to
-# Amazon CloudWatch Logs.
-# ------------------------------------------------------------
-
 resource "aws_iam_role_policy_attachment" "chat_orchestrator_logs" {
   role       = aws_iam_role.chat_orchestrator.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-
-# ------------------------------------------------------------
-# Allow the Chat Orchestrator Lambda to retrieve information
-# from the approved Bedrock Knowledge Base, invoke Claude
-# Sonnet 4.5, apply the production Guardrail, and enable
-# first-time AWS Marketplace model access through Bedrock.
-# ------------------------------------------------------------
-
 resource "aws_iam_role_policy" "chat_orchestrator_bedrock" {
   name = "${var.project_name}-chat-orchestrator-bedrock-${var.environment}"
-
   role = aws_iam_role.chat_orchestrator.id
 
   policy = jsonencode({
     Version = "2012-10-17"
 
     Statement = [
-
-      # ------------------------------------------------------
-      # Retrieve information from the approved Knowledge Base.
-      # ------------------------------------------------------
-
       {
         Sid    = "KnowledgeBaseRetrieve"
         Effect = "Allow"
 
-        Action = [
-          "bedrock:Retrieve"
-        ]
-
+        Action   = ["bedrock:Retrieve"]
         Resource = "arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:knowledge-base/O2APGMXFIE"
       },
-
-
-      # ------------------------------------------------------
-      # Invoke Claude Sonnet 4.5 through the US inference
-      # profile and its destination foundation models.
-      # ------------------------------------------------------
-
       {
         Sid    = "InvokeClaudeSonnet45"
         Effect = "Allow"
 
-        Action = [
-          "bedrock:InvokeModel"
-        ]
+        Action = ["bedrock:InvokeModel"]
 
         Resource = [
-          ""arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:inference-profile/us.anthropic.claude-sonnet-4-5-20250929-v1:0",
-
+          "arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:inference-profile/us.anthropic.claude-sonnet-4-5-20250929-v1:0",
           "arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-sonnet-4-5-20250929-v1:0",
-
           "arn:aws:bedrock:us-east-2::foundation-model/anthropic.claude-sonnet-4-5-20250929-v1:0",
-
           "arn:aws:bedrock:us-west-2::foundation-model/anthropic.claude-sonnet-4-5-20250929-v1:0"
         ]
       },
-
-
-      # ------------------------------------------------------
-      # Allow the Lambda to apply the production Guardrail.
-      # ------------------------------------------------------
-
       {
         Sid    = "ApplyGuardrail"
         Effect = "Allow"
 
-        Action = [
-          "bedrock:ApplyGuardrail"
-        ]
-
+        Action   = ["bedrock:ApplyGuardrail"]
         Resource = "arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:guardrail/ym41bc2m1c4j"
       },
-
-
-      # ------------------------------------------------------
-      # Allow Bedrock to complete the first-time AWS
-      # Marketplace subscription/access flow for the
-      # third-party Claude model.
-      #
-      # The condition prevents these Marketplace actions
-      # from being used directly by the Lambda for unrelated
-      # Marketplace operations. They are permitted only when
-      # the request is made through Amazon Bedrock.
-      # ------------------------------------------------------
-
       {
         Sid    = "MarketplaceModelAccess"
         Effect = "Allow"
@@ -276,17 +183,12 @@ resource "aws_iam_role_policy" "chat_orchestrator_bedrock" {
   })
 }
 
-
 # ============================================================
 # KNOWLEDGE BASE SYNC LAMBDA
 # ============================================================
 
 resource "aws_iam_role" "kb_sync" {
   name = "${var.project_name}-kb-sync-role-${var.environment}"
-
-  # ----------------------------------------------------------
-  # Allow AWS Lambda to assume this execution role.
-  # ----------------------------------------------------------
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -312,55 +214,31 @@ resource "aws_iam_role" "kb_sync" {
   }
 }
 
-
-# ------------------------------------------------------------
-# Allow the KB Sync Lambda to write logs to CloudWatch Logs.
-# ------------------------------------------------------------
-
 resource "aws_iam_role_policy_attachment" "kb_sync_logs" {
   role       = aws_iam_role.kb_sync.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-
 # ============================================================
 # KB SYNC LAMBDA - DOCUMENT CONTROL PERMISSIONS
-# ============================================================
 #
-# The KB Sync Lambda manages the document-control workflow:
-#
-# incoming/
-#     ↓
-# validation
-#     ↓
-# approved/ OR rejected/
-#
-# The Lambda does NOT have permission to modify arbitrary
-# locations in the bucket.
+# Workflow:
+# incoming/ → validation → approved/ or rejected/
 # ============================================================
 
 resource "aws_iam_role_policy" "kb_sync_s3" {
   name = "${var.project_name}-kb-sync-s3-${var.environment}"
-
   role = aws_iam_role.kb_sync.id
 
   policy = jsonencode({
     Version = "2012-10-17"
 
     Statement = [
-
-      # ------------------------------------------------------
-      # Allow the Lambda to list objects in incoming/.
-      # ------------------------------------------------------
-
       {
         Sid    = "ListIncomingDocuments"
         Effect = "Allow"
 
-        Action = [
-          "s3:ListBucket"
-        ]
-
+        Action   = ["s3:ListBucket"]
         Resource = aws_s3_bucket.knowledge_documents.arn
 
         Condition = {
@@ -376,17 +254,6 @@ resource "aws_iam_role_policy" "kb_sync_s3" {
           }
         }
       },
-
-
-      # ------------------------------------------------------
-      # Allow the Lambda to read incoming documents.
-      #
-      # DeleteObject is also required because the Lambda moves
-      # a processed document out of incoming/ after validation.
-      #
-      # It can ONLY delete objects under incoming/.
-      # ------------------------------------------------------
-
       {
         Sid    = "ReadAndDeleteIncomingDocuments"
         Effect = "Allow"
@@ -404,21 +271,11 @@ resource "aws_iam_role_policy" "kb_sync_s3" {
           }
         }
       },
-
-
-      # ------------------------------------------------------
-      # Allow the Lambda to place approved documents in the
-      # approved/ prefix.
-      # ------------------------------------------------------
-
       {
         Sid    = "WriteApprovedDocuments"
         Effect = "Allow"
 
-        Action = [
-          "s3:PutObject"
-        ]
-
+        Action   = ["s3:PutObject"]
         Resource = "${aws_s3_bucket.knowledge_documents.arn}/approved/*"
 
         Condition = {
@@ -427,21 +284,11 @@ resource "aws_iam_role_policy" "kb_sync_s3" {
           }
         }
       },
-
-
-      # ------------------------------------------------------
-      # Allow the Lambda to place rejected documents in the
-      # rejected/ prefix.
-      # ------------------------------------------------------
-
       {
         Sid    = "WriteRejectedDocuments"
         Effect = "Allow"
 
-        Action = [
-          "s3:PutObject"
-        ]
-
+        Action   = ["s3:PutObject"]
         Resource = "${aws_s3_bucket.knowledge_documents.arn}/rejected/*"
 
         Condition = {

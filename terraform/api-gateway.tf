@@ -62,6 +62,9 @@ resource "aws_apigatewayv2_stage" "prod" {
   name        = "$default"
   auto_deploy = true
 
+  default_route_settings {
+    detailed_metrics_enabled = true
+  }
   tags = {
     Name        = "${var.project_name}-api-stage-${var.environment}"
     Environment = var.environment
