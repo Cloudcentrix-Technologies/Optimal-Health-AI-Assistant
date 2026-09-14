@@ -1,0 +1,39 @@
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+terraform.tfstate.d/
+
+# Generated deployment packages
+*.zip
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# Local test artifacts
+chat-response.json
+retrieval-config.json
+retrieval-query.json
+test-chat-orchestrator.json
+test-kb-approved*.txt
+test-kb-rejected*.txt
+approved-workflow-test.txt
+
+# Frontend deployment artifact
+optimal-health-frontend.zip
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

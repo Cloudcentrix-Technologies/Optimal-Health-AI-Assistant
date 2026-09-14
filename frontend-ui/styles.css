@@ -1,0 +1,294 @@
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f5f7f9;
+    color: #24323d;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.screen {
+    min-height: 100vh;
+}
+
+/* Login */
+
+#login-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: linear-gradient(135deg, #f4f8f7, #e9f0ef);
+}
+
+.login-card {
+    width: 100%;
+    max-width: 430px;
+    background: white;
+    border-radius: 16px;
+    padding: 42px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+
+.brand-mark,
+.assistant-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    background: #1f5f55;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.login-card h1 {
+    margin: 22px 0 6px;
+    font-size: 25px;
+}
+
+.subtitle {
+    margin: 0 0 30px;
+    color: #71808a;
+}
+
+label {
+    display: block;
+    margin: 16px 0 7px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+input,
+textarea {
+    width: 100%;
+    border: 1px solid #d4dce0;
+    border-radius: 9px;
+    padding: 13px 14px;
+    font: inherit;
+    outline: none;
+}
+
+input:focus,
+textarea:focus {
+    border-color: #1f5f55;
+    box-shadow: 0 0 0 3px rgba(31, 95, 85, 0.08);
+}
+
+#login-button,
+#send-button {
+    border: none;
+    border-radius: 9px;
+    background: #1f5f55;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#login-button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 24px;
+}
+
+#login-button:hover,
+#send-button:hover {
+    background: #174a43;
+}
+
+.error-message {
+    color: #b42318;
+    font-size: 14px;
+    min-height: 20px;
+    margin-bottom: 0;
+}
+
+/* App */
+
+.app-header {
+    height: 76px;
+    background: white;
+    border-bottom: 1px solid #e1e6e8;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+}
+
+.brand-name {
+    font-weight: 700;
+    font-size: 17px;
+}
+
+.app-name {
+    color: #71808a;
+    font-size: 13px;
+    margin-top: 3px;
+}
+
+.sign-out {
+    border: 1px solid #d4dce0;
+    background: white;
+    padding: 9px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.assistant-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 24px;
+}
+
+.welcome {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.welcome h2 {
+    margin: 0 0 5px;
+}
+
+.welcome p {
+    margin: 0;
+    color: #71808a;
+}
+
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.message {
+    max-width: 80%;
+    padding: 16px 18px;
+    border-radius: 12px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+}
+
+.user-message {
+    align-self: flex-end;
+    background: #1f5f55;
+    color: white;
+}
+
+.ai-message {
+    align-self: flex-start;
+    background: white;
+    border: 1px solid #e1e6e8;
+}
+
+.source {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #e5e9eb;
+    font-size: 12px;
+    color: #65747d;
+}
+
+.chat-form {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.chat-form textarea {
+    resize: vertical;
+    min-height: 52px;
+}
+
+#send-button {
+    width: 90px;
+    min-width: 90px;
+}
+
+.loading {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 16px 0;
+    color: #71808a;
+    font-size: 13px;
+}
+
+.loading span {
+    width: 6px;
+    height: 6px;
+    background: #71808a;
+    border-radius: 50%;
+    animation: pulse 1.2s infinite;
+}
+
+.loading span:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.loading span:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.loading label {
+    margin: 0 0 0 5px;
+    font-weight: normal;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+.notice {
+    margin-top: 18px;
+    padding: 13px 15px;
+    background: #fff8e6;
+    border: 1px solid #f0dfaa;
+    border-radius: 9px;
+    color: #67551c;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+    .login-card {
+        padding: 28px;
+    }
+
+    .app-header {
+        padding: 0 18px;
+    }
+
+    .assistant-container {
+        margin-top: 25px;
+        padding: 0 16px;
+    }
+
+    .message {
+        max-width: 92%;
+    }
+
+    .chat-form {
+        flex-direction: column;
+    }
+
+    #send-button {
+        width: 100%;
+    }
+}

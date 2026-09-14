@@ -1,0 +1,100 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OptimalHealth M&B | Staff Knowledge Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Login -->
+    <section id="login-screen" class="screen">
+        <div class="login-card">
+            <div class="brand-mark">OH</div>
+            <h1>OptimalHealth M&B Concept</h1>
+            <p class="subtitle">Staff Knowledge Assistant</p>
+
+            <form id="login-form">
+                <label for="email">Staff email</label>
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="staff@optimalhealth.com"
+                    required
+                >
+
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter your password"
+                    required
+                >
+
+                <button type="submit" id="login-button">Sign in</button>
+
+                <p id="login-error" class="error-message"></p>
+            </form>
+        </div>
+    </section>
+
+    <!-- Staff Assistant -->
+    <section id="app-screen" class="screen hidden">
+        <header class="app-header">
+            <div>
+                <div class="brand-name">OptimalHealth M&B Concept</div>
+                <div class="app-name">Staff Knowledge Assistant</div>
+            </div>
+
+            <button id="sign-out-button" class="sign-out">
+                Sign out
+            </button>
+        </header>
+
+        <main class="assistant-container">
+            <div class="welcome">
+                <div class="assistant-icon">OH</div>
+                <div>
+                    <h2>How can I help?</h2>
+                    <p>
+                        Ask questions about approved OptimalHealth
+                        information and staff procedures.
+                    </p>
+                </div>
+            </div>
+
+            <div id="chat-container" class="chat-container"></div>
+
+            <div id="loading" class="loading hidden">
+                <span></span>
+                <span></span>
+                <span></span>
+                <label>Searching the knowledge base...</label>
+            </div>
+
+            <form id="chat-form" class="chat-form">
+                <textarea
+                    id="question"
+                    placeholder="Ask a question..."
+                    rows="2"
+                    required
+                ></textarea>
+
+                <button type="submit" id="send-button">
+                    Send
+                </button>
+            </form>
+
+            <div class="notice">
+                <strong>Staff use only.</strong>
+                AI-generated responses should be verified against
+                approved information before client use.
+            </div>
+        </main>
+    </section>
+
+    <script src="app.js"></script>
+</body>
+</html>
